@@ -9,11 +9,15 @@ function CreatePostWizard() {
   if (!user) return null;
 
   return (
-    <div className="flex">
+    <div className="flex w-full gap-3">
       <img
         src={user.profileImageUrl}
         alt="Profile Image"
         className="h-14 w-14 rounded-full"
+      />
+      <input
+        placeholder="Type some emojis!"
+        className="grow bg-transparent outline-none"
       />
     </div>
   );
