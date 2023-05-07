@@ -48,7 +48,7 @@ function PostView(props: PostWithUser) {
           <span>{`@${author.username}`}</span> ·{" "}
           <span>{dayjs(post.createdAt).fromNow()}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-xl">{post.content}</span>
       </div>
     </div>
   );
@@ -69,7 +69,8 @@ function Feed() {
 }
 
 const Home: NextPage = () => {
-  const { isSignedIn, isLoaded: userLoaded, user } = useUser();
+  const { isSignedIn, isLoaded: userLoaded } = useUser();
+  //start fetching data early
   api.posts.getAll.useQuery();
   if (!userLoaded) return <div />;
 
