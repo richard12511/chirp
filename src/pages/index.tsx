@@ -8,6 +8,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
 import React from "react";
+import { toast } from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
@@ -19,6 +20,9 @@ function CreatePostWizard() {
     onSuccess: () => {
       setInput("");
       void ctx.posts.getAll.invalidate();
+    },
+    onError: () => {
+      toast.error("Failed to create post!");
     },
   });
   const [input, setInput] = React.useState("");
