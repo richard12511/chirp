@@ -21,7 +21,12 @@ function CreatePostWizard() {
       setInput("");
       void ctx.posts.getAll.invalidate();
     },
-    onError: () => {
+    onError: (err) => {
+      const errorMessage = err.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+        return;
+      }
       toast.error("Failed to create post!");
     },
   });
