@@ -6,10 +6,8 @@ import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { PostView } from "~/components/postview";
 
 const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data } = api.posts.getPostById.useQuery({ id });
-  if (!data || !data[0]) return <div>Something went wrong...</div>;
-  console.log(data);
-  const fullPost = data[0];
+  const { data: fullPost } = api.posts.getPostById.useQuery({ id });
+  if (!fullPost) return <div>Something went wrong...</div>;
 
   return (
     <>

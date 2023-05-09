@@ -73,7 +73,7 @@ export const postsRouter = createTRPCRouter({
       });
       if (!post) throw new TRPCError({ code: "NOT_FOUND" });
 
-      return addUserDataToPosts([post]);
+      return (await addUserDataToPosts([post]))[0];
     }),
   create: privateProcedure
     .input(
