@@ -31,7 +31,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
     username: username,
   });
 
-  if (!data) return <div>Something went wrong!</div>;
+  if (!data) return <div>404</div>;
 
   return (
     <>
@@ -42,17 +42,17 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <div className="relative h-36 bg-slate-600">
           <Image
             src={data.profileImageUrl}
-            alt={`${data.username}'s profile pic`}
+            alt={`${data.username ?? "unknown"}'s profile pic`}
             width={128}
             height={128}
-            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black"
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black bg-black"
           />
-          <div className="h-[200px]"></div>
-          <div className="p-4 text-2xl font-bold">{`@${
-            data.username ?? ""
-          }`}</div>
-          <div className="border-b border-slate-400"></div>
         </div>
+        <div className="h-[64px]"></div>
+        <div className="p-4 text-2xl font-bold">{`@${
+          data.username ?? "unknown"
+        }`}</div>
+        <div className="border-b border-slate-400" />
         <ProfileFeed userId={data.id} />
       </PageLayout>
     </>
