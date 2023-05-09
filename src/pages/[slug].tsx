@@ -5,6 +5,26 @@ import React from "react";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { PageLayout } from "~/components/layout";
 import Image from "next/image";
+import { LoadingPage } from "~/components/loading";
+import { PostView } from "~/components/postview";
+
+function ProfileFeed(props: { userId: string }) {
+  const { data, isLoading } = api.posts.getPostByUserId.useQuery({
+    userId: props.userId,
+  });
+  if (isLoading) return <LoadingPage />;
+  if (!data) return <div>Something went wrong!</div>;
+
+  console.log(data);
+
+  return (
+    <div className="flex flex-col">
+      {data.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id} />
+      ))}
+    </div>
+  );
+}
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
@@ -33,6 +53,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           }`}</div>
           <div className="border-b border-slate-400"></div>
         </div>
+        <ProfileFeed userId={data.id} />
       </PageLayout>
     </>
   );
