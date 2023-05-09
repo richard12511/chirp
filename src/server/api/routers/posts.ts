@@ -9,6 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
+import { Post } from "@prisma/client";
 
 //rate limiter
 const ratelimit = new Ratelimit({
@@ -17,34 +18,51 @@ const ratelimit = new Ratelimit({
   analytics: true,
 });
 
+async function addUserDataToPosts(posts: Post[]) {
+  //then get all users
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: posts.map((post) => post.authorId),
+      limit: 100,
+    })
+  ).map(filterUserForClient);
+
+  //then map posts to include author
+  return posts.map((post) => {
+    const author = users.find((user) => user.id === post.authorId);
+    if (!author || !author.username)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      });
+
+    return {
+      post: post,
+      author: author,
+    };
+  });
+}
+
 export const postsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
+    //first get all posts
     const posts = await ctx.prisma.post.findMany({
       take: 100,
       orderBy: { createdAt: "desc" },
     });
 
-    const users = (
-      await clerkClient.users.getUserList({
-        userId: posts.map((post) => post.authorId),
-        limit: 100,
-      })
-    ).map(filterUserForClient);
-
-    return posts.map((post) => {
-      const author = users.find((user) => user.id === post.authorId);
-      if (!author || !author.username)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Author for post not found",
-        });
-
-      return {
-        post: post,
-        author: author,
-      };
-    });
+    //then add user data to those posts
+    return addUserDataToPosts(posts);
   }),
+  getPostByUserId: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ input, ctx }) =>
+      ctx.prisma.post.findMany({
+        where: { authorId: input.userId },
+        take: 100,
+        orderBy: [{ createdAt: "desc" }],
+      })
+    ),
   create: privateProcedure
     .input(
       z.object({
